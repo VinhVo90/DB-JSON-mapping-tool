@@ -369,8 +369,6 @@ class Edge {
   setStatusEdgeOnCurrentView() {
     const { id, source: { x: xSrc, y: ySrc, svgId: svgSrc }, target: { x: xDes, y: yDes, svgId: svgDes } } = this;
 
-    const addressBarHeight = $('#addressBar')[0].getBoundingClientRect().height;
-
     const srcContainerRect = $(`#${svgSrc}`)[0].parentNode.getBoundingClientRect();
     const desContainerRect = $(`#${svgDes}`)[0].parentNode.getBoundingClientRect();
 
@@ -386,9 +384,9 @@ class Edge {
 
     const node = d3.select(`#${id}`);
     if (xSrc < srcContainerRect.left || xSrc > srcContainerRect.right - srcOffsetRight
-        || ySrc + addressBarHeight < srcContainerRect.top || ySrc > srcContainerRect.bottom - addressBarHeight - srcOffsetBottom
+        || ySrc  < srcContainerRect.top || ySrc > srcContainerRect.bottom - srcOffsetBottom
 				|| xDes < desContainerRect.left || xDes > desContainerRect.right - desOffsetRight
-        || yDes + addressBarHeight < desContainerRect.top || yDes > desContainerRect.bottom - addressBarHeight - desOffsetBottom
+        || yDes < desContainerRect.top || yDes > desContainerRect.bottom - desOffsetBottom
     ) {
       if (node.node()) {
         d3.select(node.node().parentNode).classed('hide-edge-on-parent-scroll', true);

@@ -23,13 +23,14 @@ class MainMenu {
       build: () => ({
         callback: (key, options) => {
           switch (key) {
-            case 'createBoundary':
+            case 'createVertex':
               const params = {
-                x: this.opt.x,
-                y: this.opt.y,
-                isMenu: this.opt.isMenu,
+                x: options.x,
+                y: options.y,
+                groupType: 'DBJSON',
+                data: {},
               };
-              this.parent.createBoundary(params);
+              this.parent.makePopupEditVertex(params);
               break;
 
             case 'clearAll':
@@ -56,31 +57,17 @@ class MainMenu {
         },
         items: {
           createVertex: {
-            name: 'Create Vertex',
+            name: 'Create New',
             icon: 'fa-window-maximize',
-            items: checkModePermission(this.viewMode.value, 'createVertex') ? this.loadItems() : {},
-            type: 'sub',
             disabled: !checkModePermission(this.viewMode.value, 'createVertex'),
           },
           sep1: '-',
-          createBoundary: {
-            name: 'Create Boundary',
-            icon: 'fa-object-group',
-            disabled: !checkModePermission(this.viewMode.value, 'createBoundary'),
-          },
-          sep2: '-',
           clearAll: {
             name: 'Clear All',
             icon: 'fa-times',
             disabled: !checkModePermission(this.viewMode.value, 'clearAll'),
           },
-          sep3: '-',
-          autoAlignment: {
-            name: 'Auto Alignment',
-            icon: 'fa-sort',
-            disabled: !checkModePermission(this.viewMode.value, 'autoAlignment'),
-          },
-          sep4: '-',
+          sep2: '-',
           showReduced: {
             name: this.parent.isShowReduced ? 'Show Full' : 'Show Reduced',
             icon: 'fa-link',

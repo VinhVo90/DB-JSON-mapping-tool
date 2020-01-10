@@ -35,7 +35,7 @@ import {
   initDialogDragEvent,
 } from '../../../common/utilities/common.util';
 
-const HTML_VERTEX_INFO_ID = 'vertexInfo';
+const HTML_DB_JSON_INFO_ID = 'dbJsonInfo';
 const HTML_VERTEX_PROPERTIES_ID = 'vertexProperties';
 const HTML_GROUP_BTN_DYNAMIC_DATASET = 'groupBtnDynamicDataSet';
 const ATTR_DEL_CHECK_ALL = 'delCheckAll';
@@ -88,21 +88,9 @@ class VertexMgmt {
 	}
 
 	initVertexPopupHtml() {
-		const repeatHtml = `
-    <tr>
-      <th>Max repeat</th>
-      <td class="input-group full-width">
-        <input type="number" class="form-control" id="vertexRepeat_${this.svgId}" name="vertexRepeat" min="0" max="9999">
-        <label class="input-group-addon">
-          <input type="checkbox" id="isVertexMandatory_${this.svgId}" name="isVertexMandatory">
-        </label>
-        <label class="input-group-addon" for="isVertexMandatory_${this.svgId}">Mandatory</label>
-      </td>
-    </tr>`;
-
 		const sHtml = `
     <!-- Vertex Info Popup (S) -->
-    <div id="${HTML_VERTEX_INFO_ID}_${this.svgId}" class="modal fade" role="dialog" tabindex="-1">
+    <div id="${HTML_DB_JSON_INFO_ID}_${this.svgId}" class="modal fade" role="dialog" tabindex="-1">
       <div class="modal-dialog">
         <div class="web-dialog modal-content">
           <div class="dialog-title">
@@ -124,7 +112,6 @@ class VertexMgmt {
                         <input type="text" class="form-control" id="vertexName_${this.svgId}" name="vertexName" onfocus="this.select();">
                       </td>
                     </tr>
-                    ${checkModePermission(this.viewMode.value, 'vertexRepeat') ? repeatHtml: ''}
                     <tr>
                       <th>Description</th>
                       <td class="full-width">
@@ -171,15 +158,15 @@ class VertexMgmt {
 	bindEventForPopupVertex() {
 		const main = this;
 		if (checkModePermission(this.viewMode.value, 'vertexBtnConfirm')) {
-			$(`#vertexBtnConfirm_${main.svgId}`).click(() => {
+			$(`#${HTML_DB_JSON_INFO_ID}_${this.svgId} #vertexBtnConfirm_${main.svgId}`).click(() => {
 				this.confirmEditVertexInfo();
 			});
 
-			$(`#vertexBtnAdd_${main.svgId}`).click(() => {
+			$(`#${HTML_DB_JSON_INFO_ID}_${this.svgId} #vertexBtnAdd_${main.svgId}`).click(() => {
 				this.addDataElement();
 			});
 
-			$(`#vertexBtnDelete_${main.svgId}`).click(() => {
+			$(`#${HTML_DB_JSON_INFO_ID}_${this.svgId} #vertexBtnDelete_${main.svgId}`).click(() => {
 				this.removeDataElement();
 			});
 		}
@@ -200,7 +187,7 @@ class VertexMgmt {
 				}
 			});
   
-			$(`#vertexRepeat_${main.svgId}`).focusout(function () {
+			$(`#${HTML_DB_JSON_INFO_ID}_${this.svgId} #vertexRepeat_${main.svgId}`).focusout(function () {
 				const rtnVal = checkMinMaxValue(this.value, $(`#isVertexMandatory_${main.svgId}`).prop('checked') == true ? 1 : REPEAT_RANGE.MIN, REPEAT_RANGE.MAX);
 				this.value = rtnVal;
 			});
@@ -211,14 +198,11 @@ class VertexMgmt {
 		
 		// Enable dragging for popup
     // this.initDialogDragEvent();
-    initDialogDragEvent(`${HTML_VERTEX_INFO_ID}_${this.svgId}`);
+    initDialogDragEvent(`${HTML_DB_JSON_INFO_ID}_${this.svgId}`);
 	}
 
 	create(sOptions, state) {
 		const {vertexType, isMenu} = sOptions;
-
-		if (!vertexType)
-			return null;
 
 		sOptions.isShowReduced = this.mainParent.isShowReduced;
 		let newVertex = new Vertex({
@@ -341,8 +325,8 @@ class VertexMgmt {
 
 		this.currentId = id;
 		// Append content to popup
-		$(`#vertexName_${this.svgId}`).val(name);
-		$(`#vertexDesc_${this.svgId}`).val(description);
+		$(`#${HTML_DB_JSON_INFO_ID}_${this.svgId} #vertexName_${this.svgId}`).val(name);
+		$(`#${HTML_DB_JSON_INFO_ID}_${this.svgId} #vertexDesc_${this.svgId}`).val(description);
 
 		if (checkModePermission(this.viewMode.value, 'vertexRepeat')) {
 			$(`#vertexRepeat_${this.svgId}`).val(repeat);
@@ -351,6 +335,7 @@ class VertexMgmt {
 
 		// Generate properties vertex
 		const columnTitle = Object.keys(group.dataElementFormat);
+		const columnText = group.dataElementText;
 		const cols = columnTitle.length;
 		const rows = data.length;
 		const dataType = group.elementDataType;
@@ -373,7 +358,7 @@ class VertexMgmt {
 
 		// init delcheck column if isDynamicDataSet
 		const option = group.option;
-		const isDynamicDataSet = option.indexOf(VERTEX_GROUP_OPTION.DYNAMIC_DATASET) > -1;
+		const isDynamicDataSet = true;
 		// Set show hide group button dynamic data set
 		if (!isDynamicDataSet) {
 			$(`#${HTML_GROUP_BTN_DYNAMIC_DATASET}_${this.svgId}`).hide();
@@ -395,7 +380,7 @@ class VertexMgmt {
 		}
 
 		for (let i = 0; i < cols; i++) {
-			let $colHdr = $('<th>').text(this.capitalizeFirstLetter(columnTitle[i]));
+			let $colHdr = $('<th>').text(columnText[columnTitle[i]]);
 			$colHdr.attr('class', 'col_header');
 			$colHdr.appendTo($headerRow);
 
@@ -474,7 +459,7 @@ class VertexMgmt {
 		hideFileChooser();
 
 		const options = {
-			popupId: `${HTML_VERTEX_INFO_ID}_${this.svgId}`,
+			popupId: `${HTML_DB_JSON_INFO_ID}_${this.svgId}`,
 			position: 'center',
 			width: $popWidth + POPUP_CONFIG.PADDING_CHAR + (!isDynamicDataSet ? 0 : 45)
 		}
@@ -482,15 +467,15 @@ class VertexMgmt {
 
 		if (!checkModePermission(this.viewMode.value, 'vertexBtnConfirm')) {
 			if (isDynamicDataSet) {
-				$(`#vertexBtnAdd_${this.svgId}`).hide();
-				$(`#vertexBtnDelete_${this.svgId}`).hide();
+				$(`#${HTML_DB_JSON_INFO_ID}_${this.svgId} #vertexBtnAdd_${this.svgId}`).hide();
+				$(`#${HTML_DB_JSON_INFO_ID}_${this.svgId} #vertexBtnDelete_${this.svgId}`).hide();
 			}
 			$(`#vertexBtnConfirm_${this.svgId}`).hide();
 
 		} else {
 			if (isDynamicDataSet) {
-				$(`#vertexBtnAdd_${this.svgId}`).show();
-				$(`#vertexBtnDelete_${this.svgId}`).show();
+				$(`#${HTML_DB_JSON_INFO_ID}_${this.svgId} #vertexBtnAdd_${this.svgId}`).show();
+				$(`#${HTML_DB_JSON_INFO_ID}_${this.svgId} #vertexBtnDelete_${this.svgId}`).show();
 			}
 			$(`#vertexBtnConfirm_${this.svgId}`).show();
 		}
@@ -641,7 +626,7 @@ class VertexMgmt {
 
 		const group = _.find(this.vertexDefinition.vertexGroup,{'groupType': groupType});
 		const option = group.option;
-		const isDynamicDataSet = option.indexOf(VERTEX_GROUP_OPTION.DYNAMIC_DATASET) > -1;
+		const isDynamicDataSet = true;
 		if (isDynamicDataSet) {
 			// Append del check to row
 			const $col = this.initCellDelCheck({
@@ -734,7 +719,7 @@ class VertexMgmt {
    */
 	closePopVertexInfo() {
 		this.currentId = null;
-		let options = {popupId: `${HTML_VERTEX_INFO_ID}_${this.svgId}`};
+		let options = {popupId: `${HTML_DB_JSON_INFO_ID}_${this.svgId}`};
 		PopUtils.metClosePopup(options);
 	}
 
@@ -970,8 +955,8 @@ class VertexMgmt {
 	 */
 	initDialogDragEvent() {
 		const main = this;
-		$(`#${HTML_VERTEX_INFO_ID}_${main.svgId} .dialog-title`).css('cursor', 'move').on('mousedown', (e) => {
-			let $drag = $(`#${HTML_VERTEX_INFO_ID}_${main.svgId} .modal-dialog`).addClass('draggable');
+		$(`#${HTML_DB_JSON_INFO_ID}_${main.svgId} .dialog-title`).css('cursor', 'move').on('mousedown', (e) => {
+			let $drag = $(`#${HTML_DB_JSON_INFO_ID}_${main.svgId} .modal-dialog`).addClass('draggable');
 				
 			let pos_y = $drag.offset().top - e.pageY,
 				pos_x = $drag.offset().left - e.pageX,
@@ -989,7 +974,7 @@ class VertexMgmt {
 				if (y < 10) y = 10
 				else if (y > winH - 10) y = winH - 10
 
-				$(`#${HTML_VERTEX_INFO_ID}_${main.svgId} .draggable`).offset({
+				$(`#${HTML_DB_JSON_INFO_ID}_${main.svgId} .draggable`).offset({
 					top: y,
 					left: x
 				})
@@ -998,7 +983,7 @@ class VertexMgmt {
 		})
 
 		$(window).on('mouseup', function(e) {
-			$(`#${HTML_VERTEX_INFO_ID}_${main.svgId} .draggable`).removeClass('draggable')
+			$(`#${HTML_DB_JSON_INFO_ID}_${main.svgId} .draggable`).removeClass('draggable')
 		})
 	}
 }

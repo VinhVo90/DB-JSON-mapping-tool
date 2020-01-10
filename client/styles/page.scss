@@ -89,7 +89,7 @@ body {
 
   .connect-svg {
     position: absolute;
-    top: 20px;
+    top: 0px;
     left: 0;
     height: 100%;
     width: 100%;
@@ -120,7 +120,7 @@ body {
   left: 0;
   width: calc(50%);
   border-right: 1px solid #c5c5c5;
-  top: 20px;
+  top: 0px;
   bottom: 0px;
   touch-action: none;
   overflow: auto;
@@ -139,7 +139,7 @@ body {
 .jsonContainer {
   left: calc(50%);
   width: calc(50%);
-  top: 20px;
+  top: 0px;
   bottom: 0px;
   touch-action: none;
   overflow: hidden;

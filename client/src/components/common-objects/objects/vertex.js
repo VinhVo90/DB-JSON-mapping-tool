@@ -185,7 +185,7 @@ class Vertex {
 			<div class="content_header_name" style="height: ${VERTEX_ATTR_SIZE.HEADER_HEIGHT}px;
 									background-color: ${this.colorHash.hex(this.name)};
 									cursor: move; pointer-events: all">
-				<p class="header_name" id="${this.id}Name" title="${this.description}">${segmentName(this, this.viewMode.value)}</p>
+				<p class="header_name" id="${this.id}Name" title="${this.description}">${this.name}</p>
 			</div>
 					
         <div class="vertex_data">
