@@ -28,11 +28,6 @@ import {
 
 const ID_TAB_SEGMENT_SET = 'addressSegmentSet';
 const ID_TAB_MESSAGE_SPEC = 'addressMessageSpec';
-const HTML_VERTEX_INFO_ID = 'vertexInfo';
-const HTML_VERTEX_PROPERTIES_ID = 'vertexProperties';
-const HTML_GROUP_BTN_DYNAMIC_DATASET = 'groupBtnDynamicDataSet';
-const ATTR_DEL_CHECK_ALL = 'delCheckAll';
-const ATTR_DEL_CHECK = 'delCheck';
 const FOCUSED_CLASS = 'focused-object';
 
 class CltGraph {
@@ -113,12 +108,14 @@ class CltGraph {
 			history: this.history
 		});
 
-
+		this.LoadVertexDefinition();
 		this.initCustomFunctionD3();
 		this.objectUtils.initListenerContainerScroll(this.graphContainerId, this.edgeMgmt, [this.dataContainer]);
 		this.objectUtils.initListenerOnWindowResize(this.edgeMgmt, [this.dataContainer]);
 		this.initOnMouseUpBackground();
 		this.initShortcutKeyEvent();
+		this.initResizeEvent();
+		this.initMenuContext();
 	}
 
 	initSvgHtml() {
@@ -132,6 +129,36 @@ class CltGraph {
       <svg id="${this.connectSvgId}" class="connect-svg"></svg>`
 
 		this.selector.append(sHtml)		
+	}
+
+	initResizeEvent() {
+		const graphContainer = $(`#${this.graphContainerId}`);
+		const jsonContainer = $(`#${this.jsonContainerId}`);
+		graphContainer.resizable( {"minWidth" : 300, maxWidth : $('body').width() - 300, handles : 'e'} );
+
+		const resizeBar = graphContainer.find('.ui-resizable-e');
+		resizeBar.css('left', `${graphContainer.width()}px`);
+
+		graphContainer.resize(function(){
+			jsonContainer.css('left', `${graphContainer.width()}px`);
+			jsonContainer.css('width', `calc(100% - ${graphContainer.width()}px)`);
+			resizeBar.css('left', `${graphContainer.width()}px`);
+		});
+
+		$( window ).resize(function() {
+			const left = parseInt(resizeBar.css('left').replace('px', ''));
+			const maxWidth = $('body').width() - 300;
+			if (left < 300) {
+				resizeBar.css('left', `${left}px`);
+				graphContainer.css('width', `${left}px`);
+				jsonContainer.css('width', `calc(100% - ${graphContainer.width()}px)`);
+			} else if (left > maxWidth) {
+				resizeBar.css('left', `${maxWidth}px`);
+				graphContainer.css('width', `${maxWidth}px`);
+				jsonContainer.css('width', `calc(100% - ${graphContainer.width()}px)`);
+			}
+			graphContainer.resizable( "option", "maxWidth", maxWidth );
+		});
 	}
 
 	initCustomFunctionD3() {
@@ -407,15 +434,40 @@ class CltGraph {
 		})
 	}
 
-	LoadVertexDefinition(vertexDefinitionData, fileName) {
-		if (this.vertexMgmt.LoadVertexDefinition(vertexDefinitionData)) {
-			this.initMenuContext();
-
-			setAddressTabName(ID_TAB_SEGMENT_SET, fileName);
-			this.showFileNameOnApplicationTitleBar();
-
-			hideFileChooser();
-		}
+	LoadVertexDefinition() {
+		this.vertexGroup = { 
+			"groupType":"DBJSON",
+			"option":[ 
+			
+			],
+			"dataElementFormat":{ 
+				"dbcol":"",
+				"dbcoldescription":"",
+				"jsonfield":"",
+				"jsonfielddescription":""
+			},
+			"dataElementText":{ 
+				"dbcol":"DB Col",
+				"dbcoldescription":"DB Col Description",
+				"jsonfield":"JSON field",
+				"jsonfielddescription":"JSON field description"
+				
+			},
+			"vertexPresentation":{ 
+				"key":"dbcol",
+				"value":"jsonfield",
+				"keyTooltip":"dbcoldescription",
+				"valueTooltip":"jsonfielddescription"
+			},
+			"elementDataType":{ 
+				"dbcol":4,
+				"dbcoldescription":4,
+				"jsonfield":4,
+				"jsonfielddescription":4
+			}
+			};
+		
+		this.vertexMgmt.vertexDefinition.vertexGroup.push(this.vertexGroup);
 	}
 
 	/**

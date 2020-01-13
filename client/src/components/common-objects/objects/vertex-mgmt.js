@@ -48,8 +48,6 @@ class VertexMgmt {
 		this.mainParent = props.mainParent;
 		this.dataContainer = props.dataContainer; // {[vertex array], [boundary array]} store all vertex and boundary for this SVG
 		this.containerId = props.containerId;
-		this.graphContainerId = props.graphContainerId;
-		this.jsonContainerId = props.jsonContainerId;
 		this.svgId = props.svgId;
 		this.viewMode = props.viewMode;
 		this.edgeMgmt = props.edgeMgmt;
@@ -73,15 +71,6 @@ class VertexMgmt {
 		this.selectorClass = `_vertex_${this.svgId}`;
 		this.currentId = null; //vertex is being edited
 
-		new MainMenu({
-			selector: `#${this.svgId}`,
-			containerId: `#${this.containerId}`,
-			parent: this,
-			vertexDefinition: this.vertexDefinition,
-			viewMode: this.viewMode,
-			history: this.history
-		});
-
 		new VertexMenu({
 			selector: `.${this.selectorClass}`,
 			vertexMgmt: this,
@@ -90,51 +79,13 @@ class VertexMgmt {
 			history: this.history
 		});
 
-		this.initVertexDefinition();
 		this.initVertexPopupHtml();
 		this.bindEventForPopupVertex();
-		this.initResizeEvent();
 
 		this.handleDragVertex = d3.drag()
 			.on('start', this.startDrag(this))
 			.on('drag', this.dragTo(this))
 			.on('end', this.endDrag(this));
-	}
-
-	initVertexDefinition() {
-		this.vertexGroup = { 
-			"groupType":"DBJSON",
-			"option":[ 
-			
-			],
-			"dataElementFormat":{ 
-				"dbcol":"",
-				"dbcoldescription":"",
-				"jsonfield":"",
-				"jsonfielddescription":""
-			},
-			"dataElementText":{ 
-				"dbcol":"DB Col",
-				"dbcoldescription":"DB Col Description",
-				"jsonfield":"JSON field",
-				"jsonfielddescription":"JSON field description"
-				
-			},
-			"vertexPresentation":{ 
-				"key":"dbcol",
-				"value":"jsonfield",
-				"keyTooltip":"dbcoldescription",
-				"valueTooltip":"jsonfielddescription"
-			},
-			"elementDataType":{ 
-				"dbcol":4,
-				"dbcoldescription":4,
-				"jsonfield":4,
-				"jsonfielddescription":4
-			}
-			};
-		
-		this.vertexDefinition.vertexGroup.push(this.vertexGroup);
 	}
 
 	initVertexPopupHtml() {
@@ -898,36 +849,6 @@ class VertexMgmt {
 		$chk.appendTo($col);
 
 		return $col;
-	}
-
-	initResizeEvent() {
-		const graphContainer = $(`#${this.graphContainerId}`);
-		const jsonContainer = $(`#${this.jsonContainerId}`);
-		graphContainer.resizable( {"minWidth" : 300, maxWidth : $('body').width() - 300, handles : 'e'} );
-
-		const resizeBar = graphContainer.find('.ui-resizable-e');
-		resizeBar.css('left', `${graphContainer.width()}px`);
-
-		graphContainer.resize(function(){
-			jsonContainer.css('left', `${graphContainer.width()}px`);
-			jsonContainer.css('width', `calc(100% - ${graphContainer.width()}px)`);
-			resizeBar.css('left', `${graphContainer.width()}px`);
-		});
-
-		$( window ).resize(function() {
-			const left = parseInt(resizeBar.css('left').replace('px', ''));
-			const maxWidth = $('body').width() - 300;
-			if (left < 300) {
-				resizeBar.css('left', `${left}px`);
-				graphContainer.css('width', `${left}px`);
-				jsonContainer.css('width', `calc(100% - ${graphContainer.width()}px)`);
-			} else if (left > maxWidth) {
-				resizeBar.css('left', `${maxWidth}px`);
-				graphContainer.css('width', `${maxWidth}px`);
-				jsonContainer.css('width', `calc(100% - ${graphContainer.width()}px)`);
-			}
-			graphContainer.resizable( "option", "maxWidth", maxWidth );
-		});
 	}
 
 	/**

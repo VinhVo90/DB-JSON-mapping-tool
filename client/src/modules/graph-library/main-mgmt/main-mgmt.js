@@ -29,6 +29,7 @@ class MainMgmt {
 		new FileMgmt({
 			parent: this
 		})
+		this.separateDataToManagement();
 	}
 
 	/**
@@ -36,12 +37,8 @@ class MainMgmt {
    * @param data
    * @param option
    */
-	separateDataToManagement(data, option, fileName) {
-		if (option === 'SEGMENT_SET') {
-			this.cltGraph.LoadVertexDefinition(data, fileName);
-		} else if (option === 'MESSAGE_SPEC') {
-			this.cltGraph.loadGraphData(data, fileName);
-		}
+	separateDataToManagement() {
+		this.cltGraph.LoadVertexDefinition();
 	}
 
 	save(fileName) {

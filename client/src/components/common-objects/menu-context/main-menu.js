@@ -30,8 +30,8 @@ class MainMenu {
                 groupType: 'DBJSON',
                 data: {},
               };
-              this.parent.editPopup = false;
-              this.parent.makePopupEditVertex(params);
+              this.parent.vertexMgmt.editPopup = false;
+              this.parent.vertexMgmt.makePopupEditVertex(params);
               break;
 
             case 'clearAll':
@@ -45,7 +45,7 @@ class MainMenu {
               break;
 
             case 'showReduced':
-              this.parent.mainParent.isShowReduced ? this.parent.mainParent.showFull() : this.parent.mainParent.showReduced();
+              this.parent.isShowReduced ? this.parent.showFull() : this.parent.showReduced();
               break;
 
             default:
@@ -66,7 +66,7 @@ class MainMenu {
           },
           sep2: '-',
           showReduced: {
-            name: this.parent.mainParent.isShowReduced ? 'Show Full' : 'Show Reduced',
+            name: this.parent.isShowReduced ? 'Show Full' : 'Show Reduced',
             icon: 'fa-link',
             disabled: !checkModePermission(this.viewMode.value, 'showReduced'),
           },
