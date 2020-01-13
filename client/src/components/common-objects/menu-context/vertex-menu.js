@@ -20,6 +20,7 @@ class VertexMenu {
           const vertexObj = _.find(this.dataContainer.vertex, { id: vertexId });
           switch (key) {
             case 'editVertex':
+              this.vertexMgmt.editPopup = true;
               this.vertexMgmt.makePopupEditVertex(vertexId);
               break;
 
