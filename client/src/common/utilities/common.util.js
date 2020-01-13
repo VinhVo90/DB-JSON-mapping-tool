@@ -105,7 +105,73 @@ export function replaceSpecialCharacter(id) {
 }
 
 export function createPath(src, des) {
+  if (inFirstPart(src, des)) {
+    return drawLineFirstPart(src, des);
+  }
+  if (inThreePart(src, des) || inTwoPart(src, des)) {
+    return drawLineThreePart(src, des);
+  }
+  if (inFourthPart(src, des)) {
+    return drawLineFourthPart(src, des);
+  }
   return `M${src.x},${src.y} L${des.x},${des.y}`;
+}
+
+const DISTANCE_VERTEX_X = 20;
+const DISTANCE_VERTEX_Y = 100;
+
+function drawLineThreePart(src, des) {
+  const { x: srcX, y: srcY } = src;
+  const { x: desX, y: desY } = des;
+  const intPoint1 = { x: srcX + DISTANCE_VERTEX_X, y : srcY};
+  const intPoint2 = { x: intPoint1.x, y : desY};
+  return `M${src.x},${src.y} L${intPoint1.x},${intPoint1.y} L${intPoint2.x},${intPoint2.y} L${des.x},${des.y}`;
+}
+
+function drawLineFirstPart(src, des) {
+  const { x: srcX, y: srcY } = src;
+  const { x: desX, y: desY } = des;
+  const intPoint1 = { x: srcX + DISTANCE_VERTEX_X, y : srcY};
+  const intPoint2 = { x: intPoint1.x, y : srcY - DISTANCE_VERTEX_Y};
+  const intPoint3 = { x: desX - DISTANCE_VERTEX_X, y : intPoint2.y};
+  const intPoint4 = { x: intPoint3.x, y : desY};
+
+  return `M${src.x},${src.y} L${intPoint1.x},${intPoint1.y} L${intPoint2.x},${intPoint2.y} L${intPoint3.x},${intPoint3.y} L${intPoint4.x},${intPoint4.y} L${des.x},${des.y}`;
+}
+
+function drawLineFourthPart(src, des) {
+  const { x: srcX, y: srcY } = src;
+  const { x: desX, y: desY } = des;
+  const intPoint1 = { x: srcX + DISTANCE_VERTEX_X, y : srcY};
+  const intPoint2 = { x: intPoint1.x, y : srcY + DISTANCE_VERTEX_Y};
+  const intPoint3 = { x: desX - DISTANCE_VERTEX_X, y : intPoint2.y};
+  const intPoint4 = { x: intPoint3.x, y : desY};
+
+  return `M${src.x},${src.y} L${intPoint1.x},${intPoint1.y} L${intPoint2.x},${intPoint2.y} L${intPoint3.x},${intPoint3.y} L${intPoint4.x},${intPoint4.y} L${des.x},${des.y}`;
+}
+
+function inFourthPart(src, des) {
+  const { x: srcX, y: srcY } = src;
+  const { x: desX, y: desY } = des;
+  return ((desX <= srcX) && (desY >= srcY));
+}
+
+function inThreePart(src, des) {
+  const { x: srcX, y: srcY } = src;
+  const { x: desX, y: desY } = des;
+  return ((desX >= srcX) && (desY >= srcY));
+}
+
+function inTwoPart(src, des) {
+  const { x: srcX, y: srcY } = src;
+  const { x: desX, y: desY } = des;
+  return ((desX >= srcX) && (desY <= srcY));
+}
+
+function inFirstPart(src, des) {
+  const { x: srcX, y: srcY } = src;
+  const { x: desX, y: desY } = des;
+  return ((desX <= srcX) && (desY <= srcY));
 }
 
 // move element in array
