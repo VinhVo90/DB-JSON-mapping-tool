@@ -19,7 +19,7 @@ import {
 	isPopupOpen,
   checkKeyMisMatch,
   checkLengthMisMatch,
-  removeDuplicates
+  removeDuplicates,
 } from '../../common/utilities/common.util';
 
 import { 
@@ -29,6 +29,7 @@ import {
 const ID_TAB_SEGMENT_SET = 'addressSegmentSet';
 const ID_TAB_MESSAGE_SPEC = 'addressMessageSpec';
 const FOCUSED_CLASS = 'focused-object';
+const CONNECT_KEY = 'Connected';
 
 class CltGraph {
 	constructor(props) {
@@ -89,6 +90,7 @@ class CltGraph {
 			containerId : this.graphContainerId,
 			graphContainerId : this.graphContainerId,
 			jsonContainerId : this.jsonContainerId,
+			textAreaContainerId : this.textAreaContainerId,
 			svgId : this.graphSvgId,
 			viewMode: this.viewMode,
 			connectSide: CONNECT_SIDE.BOTH,
@@ -115,6 +117,19 @@ class CltGraph {
 		this.initOnMouseUpBackground();
 		this.initShortcutKeyEvent();
 		this.initResizeEvent();
+
+		var mutationObserver = new MutationObserver(() => {
+			let str = this.generateDBJSONContent();
+			$(`#${this.textAreaContainerId}`).text(str);
+		  });
+		  mutationObserver.observe($(`#${this.graphSvgId}`)[0], {
+			attributes: true,
+			characterData: true,
+			childList: true,
+			subtree: true,
+			attributeOldValue: true,
+			characterDataOldValue: true
+		  });
 	}
 
 	initSvgHtml() {
@@ -709,6 +724,61 @@ class CltGraph {
 				tmpEdgeMgmt.cancleSelectedPath();
 			}
 		})
+	}
+
+	generateDBJSONContent() {
+		let vertex = this.dataContainer.vertex;
+		if (vertex.length == 0)
+			return '';
+
+		let arrTable = [];
+		let edge = this.dataContainer.edge;
+		for (let i = 0; i < vertex.length; i++) {
+			let table = '';
+			let arrCol = [];
+			let vertice = vertex[i];
+
+			const {name, data} = vertice;
+			for (let row of data) {
+				let str = `\t${row['dbcol']}:${row['jsonfield']},`
+				arrCol.push(str);
+			}
+			table = `${name}: {\n${arrCol.join('\n')}\n},`
+			arrTable.push(table);
+		}
+
+		let arrLinks = [];
+
+		for (let i = 0; i < vertex.length; i++) {
+			let vertice = vertex[i];
+			const {name, data} = vertice;
+			const links = _.filter(edge, (item) => {
+				return vertice.id == item.target.vertexId;
+			});
+			if (links.length > 0) {
+				var result=_.groupBy(links, (item) => {
+					return item.target.prop;
+				})
+				_.map(result, (arr, key) => {
+					const targetKey = parseInt(key.split(CONNECT_KEY)[1]);
+					const leftRelData = data[targetKey];
+					let arrTableLinks = [];
+					for (let edgeGroup of arr) {
+						let {source} = edgeGroup;
+						let sourceVertex = _.find(this.dataContainer.vertex, {'id': source.vertexId});
+						let sourceData = sourceVertex['data'];
+						let sourceTableName = sourceVertex['name'];
+						const sourceKey = parseInt(source.prop.split(CONNECT_KEY)[1]);
+						const rightRelData = sourceData[sourceKey];
+						arrTableLinks.push(`${sourceTableName}.${rightRelData['dbcol']}`);
+					}
+					arrLinks.push(`\t${name}.${leftRelData['dbcol']}:[${arrTableLinks.join(', ')}]`);
+				});
+			}
+		}
+
+		let strLinks = arrLinks.length > 0 ? `\nlinks: [\n${arrLinks.join(", \n")}\n]` :  `\nlinks: []`
+		return `${arrTable.join("\n")}${strLinks}`;
 	}
 	
 	/**

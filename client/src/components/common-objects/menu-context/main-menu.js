@@ -29,6 +29,7 @@ class MainMenu {
                 y: options.y,
                 groupType: 'DBJSON',
                 data: {},
+                isMenu: true
               };
               this.parent.vertexMgmt.editPopup = false;
               this.parent.vertexMgmt.makePopupEditVertex(params);

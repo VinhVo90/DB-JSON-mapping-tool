@@ -83,13 +83,6 @@ class Vertex {
       groupType, data, description, repeat,
     } = sOptions;
 
-    if (isMenu || isMemberManagement) {
-      const vertexTypeInfo = _.cloneDeep(_.find(this.vertexDefinition.vertex, { vertexType }));
-      data = vertexTypeInfo.data;
-      description = vertexTypeInfo.description;
-      groupType = vertexTypeInfo.groupType;
-    }
-
     this.id = id || generateObjectId(OBJECT_TYPE.VERTEX);
     this.x = x || 0;
     this.y = y || 0;

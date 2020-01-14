@@ -10,7 +10,7 @@ const library = [
 ];
 
 module.exports = {
-  devtool: "source-map",
+  devtool: "eval-source-map",
   entry: {
     library: library
   },

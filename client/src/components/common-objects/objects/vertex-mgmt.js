@@ -48,6 +48,8 @@ class VertexMgmt {
 		this.mainParent = props.mainParent;
 		this.dataContainer = props.dataContainer; // {[vertex array], [boundary array]} store all vertex and boundary for this SVG
 		this.containerId = props.containerId;
+		this.jsonContainerId = props.jsonContainerId;
+		this.textAreaContainerId = props.textAreaContainerId;
 		this.svgId = props.svgId;
 		this.viewMode = props.viewMode;
 		this.edgeMgmt = props.edgeMgmt;
@@ -988,7 +990,6 @@ class VertexMgmt {
 
 		this.closePopVertexInfo();
 		}
-		
 	}
 
 	/**
