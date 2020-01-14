@@ -115,7 +115,6 @@ class CltGraph {
 		this.initOnMouseUpBackground();
 		this.initShortcutKeyEvent();
 		this.initResizeEvent();
-		this.initMenuContext();
 	}
 
 	initSvgHtml() {
@@ -435,39 +434,9 @@ class CltGraph {
 	}
 
 	LoadVertexDefinition() {
-		this.vertexGroup = { 
-			"groupType":"DBJSON",
-			"option":[ 
-			
-			],
-			"dataElementFormat":{ 
-				"dbcol":"",
-				"dbcoldescription":"",
-				"jsonfield":"",
-				"jsonfielddescription":""
-			},
-			"dataElementText":{ 
-				"dbcol":"DB Col",
-				"dbcoldescription":"DB Col Description",
-				"jsonfield":"JSON field",
-				"jsonfielddescription":"JSON field description"
-				
-			},
-			"vertexPresentation":{ 
-				"key":"dbcol",
-				"value":"jsonfield",
-				"keyTooltip":"dbcoldescription",
-				"valueTooltip":"jsonfielddescription"
-			},
-			"elementDataType":{ 
-				"dbcol":4,
-				"dbcoldescription":4,
-				"jsonfield":4,
-				"jsonfielddescription":4
-			}
-			};
-		
-		this.vertexMgmt.vertexDefinition.vertexGroup.push(this.vertexGroup);
+    if (this.vertexMgmt.LoadVertexDefinition(this.getDefaultVertexDefinition())) {
+			this.initMenuContext();
+		}
 	}
 
 	/**
@@ -802,7 +771,39 @@ class CltGraph {
 		})
 
 		setMinBoundaryGraph(this.dataContainer, this.graphSvgId, this.viewMode.value);
-	}
+  }
+  
+  getDefaultVertexDefinition() {
+    return {
+      "VERTEX_GROUP": [
+        {
+          "groupType":"DBJSON",
+          "option":[ 
+          
+          ],
+          "dataElementFormat":{ 
+            "dbcol":"",
+            "dbcoldescription":"",
+            "jsonfield":"",
+            "jsonfielddescription":""
+          },
+          "dataElementText":{ 
+            "dbcol":"DB Col",
+            "dbcoldescription":"DB Col Description",
+            "jsonfield":"JSON field",
+            "jsonfielddescription":"JSON field description"
+            
+          },
+          "vertexPresentation":{ 
+            "key":"dbcol",
+            "value":"jsonfield",
+            "keyTooltip":"dbcoldescription",
+            "valueTooltip":"jsonfielddescription"
+          }
+        }
+      ]
+		};
+  }
 }
   
 export default CltGraph;

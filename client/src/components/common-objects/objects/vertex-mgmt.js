@@ -1047,35 +1047,8 @@ class VertexMgmt {
 	}
 
 	LoadVertexDefinition(vertexDefinitionData) {
-		//Validate data struct
-		if (!this.validateVertexDefineStructure(vertexDefinitionData)) {
-			comShowMessage('Format or data in Segment Set is corrupted. You should check it!');
-			return false;
-		}
-
 		//Reload Vertex Define and init main menu
 		this.processDataVertexTypeDefine(vertexDefinitionData);
-
-		return true;
-	}
-
-	/**
-   * Validate Vertex Define Structure
-   */
-	validateVertexDefineStructure(data) {
-
-		//Validate data exists
-		if(data===undefined) {
-			return false;
-		}
-
-		if (!data.VERTEX_GROUP || !data.VERTEX) {
-			return false;
-		}
-
-		if (Object.keys(data).length > 2) {
-			return false;
-		}
 
 		return true;
 	}
@@ -1083,15 +1056,13 @@ class VertexMgmt {
 	processDataVertexTypeDefine(data) {
 		this.resetVertexDefinition();
 
-		const {VERTEX_GROUP, VERTEX} = data;
+		const {VERTEX_GROUP} = data;
 		this.vertexDefinition.vertexGroup = VERTEX_GROUP;
-		this.vertexDefinition.vertex = VERTEX;
 		this.getVertexFormatType(VERTEX_GROUP);
 	}
 
 	resetVertexDefinition() {
 		this.vertexDefinition.vertexGroup = [];
-		this.vertexDefinition.vertex = [];
 	}
 
 	getVertexFormatType(vertexGroup) {

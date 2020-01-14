@@ -29,7 +29,6 @@ class MainMgmt {
 		new FileMgmt({
 			parent: this
 		})
-		this.separateDataToManagement();
 	}
 
 	/**
