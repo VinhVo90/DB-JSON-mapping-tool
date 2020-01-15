@@ -265,6 +265,8 @@ class Vertex {
    * Remove vertex
    */
   remove(isMenu = true, state) {
+    if (this.history && !state) state = new State();
+
     // Remove all edge relate to vertex
     this.vertexMgmt.edgeMgmt.removeAllEdgeConnectToVertex(this, state);
 
@@ -282,7 +284,6 @@ class Vertex {
     if (this.history) {
       if (isMenu) {
         // remove vertex by menu context
-        state = new State();
         const he = new HistoryElement();
         he.actionType = ACTION_TYPE.DELETE;
         he.dataObject = this.getObjectInfo();
