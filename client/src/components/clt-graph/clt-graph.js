@@ -647,7 +647,7 @@ class CltGraph {
 
 		if (selector == '') {
 			selector = `.${this.selector.prop('class')}`;
-		}else{
+		} else {
 			selector = `#${selector}`;
 		}
     
@@ -678,7 +678,7 @@ class CltGraph {
 
 			const {name, data} = vertice;
 			for (let row of data) {
-				let str = `\t${row['dbcol']}:${row['jsonfield']},`
+				let str = `\t${row['dbcol']}: ${row['jsonfield']},`
 				arrCol.push(str);
 			}
 			table = `${name}: {\n${arrCol.join('\n')}\n},`
@@ -710,7 +710,7 @@ class CltGraph {
 						const rightRelData = sourceData[sourceKey];
 						arrTableLinks.push(`${sourceTableName}.${rightRelData['dbcol']}`);
 					}
-					arrLinks.push(`\t${name}.${leftRelData['dbcol']}:[${arrTableLinks.join(', ')}]`);
+					arrLinks.push(`\t${name}.${leftRelData['dbcol']}: [${arrTableLinks.join(', ')}]`);
 				});
 			}
 		}
@@ -791,22 +791,18 @@ class CltGraph {
           ],
           "dataElementFormat":{ 
             "dbcol":"",
-            "dbcoldescription":"",
-            "jsonfield":"",
-            "jsonfielddescription":""
+            "jsonfield":""
           },
           "dataElementText":{ 
             "dbcol":"DB Col",
-            "dbcoldescription":"DB Col Description",
-            "jsonfield":"JSON field",
-            "jsonfielddescription":"JSON field description"
+            "jsonfield":"JSON field"
             
           },
           "vertexPresentation":{ 
             "key":"dbcol",
             "value":"jsonfield",
-            "keyTooltip":"dbcoldescription",
-            "valueTooltip":"jsonfielddescription"
+            "keyTooltip":"dbcol",
+            "valueTooltip":"jsonfield"
           }
         }
       ]
