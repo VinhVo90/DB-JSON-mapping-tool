@@ -13,13 +13,9 @@ import {
 	comShowMessage,
 	setSizeGraph,
 	setMinBoundaryGraph,
-	setAddressTabName,
 	hideFileChooser,
 	filterPropertyData,
 	isPopupOpen,
-  checkKeyMisMatch,
-  checkLengthMisMatch,
-  removeDuplicates,
 } from '../../common/utilities/common.util';
 
 import { 
@@ -117,12 +113,7 @@ class CltGraph {
 		this.initOnMouseUpBackground();
 		this.initShortcutKeyEvent();
 		this.initResizeEvent();
-
-		setInterval(() => { 
-			let str = this.generateDBJSONContent();
-			$(`#${this.textAreaContainerId}`).text(str);
-		}, 3000);
-
+    this.autoGenerate();
 	}
 
 	initSvgHtml() {
@@ -383,8 +374,6 @@ class CltGraph {
 		this.edgeMgmt.clearAll();
 
 		//Reload Vertex Define and draw graph
-		// const {vertexTypes} = graphData;
-		// this.vertexMgmt.processDataVertexTypeDefine(vertexTypes);
 		this.drawObjects(graphData);
 		this.isShowReduced = false;
 		this.initMenuContext();
@@ -675,9 +664,10 @@ class CltGraph {
 	}
 
 	generateDBJSONContent() {
-		let vertex = _.sortBy(this.dataContainer.vertex, ['id']);
-		if (vertex.length == 0)
-			return '';
+		if (this.dataContainer.vertex.length == 0)
+      return '';
+      
+    const vertex = _.sortBy(this.dataContainer.vertex, ['id']);
 
 		let arrTable = [];
 		let edge = this.dataContainer.edge;
@@ -821,6 +811,14 @@ class CltGraph {
         }
       ]
 		};
+  }
+
+  autoGenerate() {
+    const str = this.generateDBJSONContent();
+    $(`#${this.textAreaContainerId}`).text(str);
+    setTimeout(() => {
+      this.autoGenerate();
+    }, 2000);
   }
 }
   
