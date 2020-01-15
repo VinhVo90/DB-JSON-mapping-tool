@@ -122,7 +122,7 @@ class CltGraph {
         	<svg id="${this.graphSvgId}" class="svg"></svg>
 	  	</div>
 		<div id="${this.jsonContainerId}" class="jsonContainer">
-			<textarea id="${this.textAreaContainerId}" class="jsonTextContainer"></textarea>
+			<textarea id="${this.textAreaContainerId}" class="jsonTextContainer" readonly></textarea>
 		</div>
       <svg id="${this.connectSvgId}" class="connect-svg"></svg>`
 
