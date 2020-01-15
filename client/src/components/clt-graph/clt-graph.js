@@ -118,18 +118,11 @@ class CltGraph {
 		this.initShortcutKeyEvent();
 		this.initResizeEvent();
 
-		var mutationObserver = new MutationObserver(() => {
+		setInterval(() => { 
 			let str = this.generateDBJSONContent();
 			$(`#${this.textAreaContainerId}`).text(str);
-		  });
-		  mutationObserver.observe($(`#${this.graphSvgId}`)[0], {
-			attributes: true,
-			characterData: true,
-			childList: true,
-			subtree: true,
-			attributeOldValue: true,
-			characterDataOldValue: true
-		  });
+		}, 3000);
+
 	}
 
 	initSvgHtml() {
@@ -390,8 +383,8 @@ class CltGraph {
 		this.edgeMgmt.clearAll();
 
 		//Reload Vertex Define and draw graph
-		const {vertexTypes} = graphData;
-		this.vertexMgmt.processDataVertexTypeDefine(vertexTypes);
+		// const {vertexTypes} = graphData;
+		// this.vertexMgmt.processDataVertexTypeDefine(vertexTypes);
 		this.drawObjects(graphData);
 		this.isShowReduced = false;
 		this.initMenuContext();
@@ -405,9 +398,6 @@ class CltGraph {
 		this.objectUtils.onContainerSvgScroll(this.graphSvgId, this.edgeMgmt, [this.dataContainer]);
 
 		setMinBoundaryGraph(this.dataContainer,this.graphSvgId, this.viewMode.value);
-
-		setAddressTabName(ID_TAB_MESSAGE_SPEC, fileName);
-		this.showFileNameOnApplicationTitleBar();
 
 		hideFileChooser();
 	}
@@ -476,48 +466,6 @@ class CltGraph {
 			return {
 				type: 'error',
 				message: 'Message Spec is corrupted. You should check it!'
-			}
-		}
-
-		// Validate embedded vertex type with vertices
-		const dataTypes = data.vertexTypes['VERTEX'];
-		const vertices = removeDuplicates(data.vertex, 'vertexType');
-		const types = this.getListVertexType(dataTypes);
-		for (const vertex of vertices) {
-			const type = vertex.vertexType;
-			// If vertex type not exit in embedded vertex type
-			if (types.indexOf(type) < 0) {
-				console.log('Vertex type not exits in embedded vertex type');
-				return {
-					type: 'warning',
-					message: 'Vertex type not exits in embedded vertex type'
-				}
-			}
-
-			// Validate data key between embedded vertex and vetex in graph.
-			const dataSource = vertex.data;
-			const dataTarget = _.find(dataTypes, {'vertexType': type});
-			const keySource = Object.keys(dataSource[0] || {});
-			const keyTarget = Object.keys(dataTarget.data[0] || {});
-
-			// Check length key
-			if (checkLengthMisMatch(keySource, keyTarget)) {
-				console.log('Data\'s length is different');
-				return {
-					type: 'warning',
-					message: 'Data\'s length is different'
-				}
-			}
-
-			// Check mismatch key
-			const flag = checkKeyMisMatch(keySource, keyTarget);
-
-			if (flag) {
-				console.log('Key vertex at source not exit in target');
-				return {
-					type: 'warning',
-					message: 'Key vertex at source not exit in target'
-				}
 			}
 		}
 
