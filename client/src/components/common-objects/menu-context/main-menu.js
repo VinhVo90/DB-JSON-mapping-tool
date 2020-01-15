@@ -29,8 +29,10 @@ class MainMenu {
                 y: options.y,
                 groupType: 'DBJSON',
                 data: {},
+                isMenu: true
               };
-              this.parent.makePopupEditVertex(params);
+              this.parent.vertexMgmt.editPopup = false;
+              this.parent.vertexMgmt.makePopupEditVertex(params);
               break;
 
             case 'clearAll':
@@ -41,10 +43,6 @@ class MainMenu {
               if (this.history) {
                 this.history.add(state);
               }
-              break;
-
-            case 'autoAlignment':
-              this.parent.operationsAutoAlignment();
               break;
 
             case 'showReduced':

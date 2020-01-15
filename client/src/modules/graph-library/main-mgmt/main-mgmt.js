@@ -32,16 +32,12 @@ class MainMgmt {
 	}
 
 	/**
-   * Validation data input match structure of graph data
-   * @param data
-   * @param option
-   */
+	 * Validation data input match structure of graph data
+	 * @param data
+	 * @param option
+	 */
 	separateDataToManagement(data, option, fileName) {
-		if (option === 'SEGMENT_SET') {
-			this.cltGraph.LoadVertexDefinition(data, fileName);
-		} else if (option === 'MESSAGE_SPEC') {
-			this.cltGraph.loadGraphData(data, fileName);
-		}
+		this.cltGraph.loadGraphData(data, fileName);
 	}
 
 	save(fileName) {

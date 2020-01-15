@@ -1,7 +1,6 @@
 import * as d3 from 'd3';
 import _ from 'lodash';
 import ObjectUtils from '../../common/utilities/object.util';
-import PopUtils from '../../common/utilities/popup.util';
 import VertexMgmt from '../common-objects/objects/vertex-mgmt';
 import BoundaryMgmt from '../common-objects/objects/boundary-mgmt';
 import EdgeMgmt from '../common-objects/objects/edge-mgmt';
@@ -12,31 +11,21 @@ import State from '../../common/new-type-define/state';
 
 import {
 	comShowMessage,
-	checkIsMatchRegexNumber,
 	setSizeGraph,
 	setMinBoundaryGraph,
-	setAddressTabName,
 	hideFileChooser,
 	filterPropertyData,
 	isPopupOpen,
-  checkKeyMisMatch,
-  checkLengthMisMatch,
-  removeDuplicates,
-  initDialogDragEvent
 } from '../../common/utilities/common.util';
 
 import { 
-	VERTEX_FORMAT_TYPE, POPUP_CONFIG,DEFAULT_CONFIG_GRAPH, VIEW_MODE, CONNECT_SIDE, ACTION_TYPE, OBJECT_TYPE,
+	DEFAULT_CONFIG_GRAPH, VIEW_MODE, CONNECT_SIDE, ACTION_TYPE, OBJECT_TYPE,
 } from '../../common/const/index';
 
 const ID_TAB_SEGMENT_SET = 'addressSegmentSet';
 const ID_TAB_MESSAGE_SPEC = 'addressMessageSpec';
-const HTML_VERTEX_INFO_ID = 'vertexInfo';
-const HTML_VERTEX_PROPERTIES_ID = 'vertexProperties';
-const HTML_GROUP_BTN_DYNAMIC_DATASET = 'groupBtnDynamicDataSet';
-const ATTR_DEL_CHECK_ALL = 'delCheckAll';
-const ATTR_DEL_CHECK = 'delCheck';
 const FOCUSED_CLASS = 'focused-object';
+const CONNECT_KEY = 'Connected';
 
 class CltGraph {
 	constructor(props) {
@@ -95,6 +84,9 @@ class CltGraph {
 			mainParent: this,
 			dataContainer : this.dataContainer,
 			containerId : this.graphContainerId,
+			graphContainerId : this.graphContainerId,
+			jsonContainerId : this.jsonContainerId,
+			textAreaContainerId : this.textAreaContainerId,
 			svgId : this.graphSvgId,
 			viewMode: this.viewMode,
 			connectSide: CONNECT_SIDE.BOTH,
@@ -114,61 +106,14 @@ class CltGraph {
 			history: this.history
 		});
 
-
+		this.LoadVertexDefinition();
 		this.initCustomFunctionD3();
 		this.objectUtils.initListenerContainerScroll(this.graphContainerId, this.edgeMgmt, [this.dataContainer]);
 		this.objectUtils.initListenerOnWindowResize(this.edgeMgmt, [this.dataContainer]);
 		this.initOnMouseUpBackground();
 		this.initShortcutKeyEvent();
-		this.initVertexPopupHtml();
-		this.bindEventForPopupVertex();
-		this.initMenuContext();
-		this.initVertexDefinition();
-	}
-
-	initVertexDefinition() {
-		this.vertexGroup = { 
-			"groupType":"DBJSON",
-			"option":[ 
-			
-			],
-			"dataElementFormat":{ 
-				"dbcol":"",
-				"dbcoldescription":"",
-				"jsonfield":"",
-				"jsonfielddescription":""
-			},
-			"dataElementText":{ 
-				"dbcol":"DB Col",
-				"dbcoldescription":"DB Col Description",
-				"jsonfield":"JSON field",
-				"jsonfielddescription":"JSON field description"
-				
-			},
-			"vertexPresentation":{ 
-				"key":"dbcol",
-				"value":"jsonfield",
-				"keyTooltip":"dbcoldescription",
-				"valueTooltip":"jsonfielddescription",
-				"keyPrefix":{ 
-				"type":{ 
-					"COMPONENT":"  "
-				},
-				"usage":{ 
-					"C":"[C] ",
-					"M":"[M] "
-				}
-				}
-			},
-			"elementDataType":{ 
-				"dbcol":4,
-				"dbcoldescription":4,
-				"jsonfield":4,
-				"jsonfielddescription":4
-			}
-			};
-		
-		this.vertexMgmt.vertexDefinition.vertexGroup.push(this.vertexGroup);
+		this.initResizeEvent();
+    this.autoGenerate();
 	}
 
 	initSvgHtml() {
@@ -177,536 +122,11 @@ class CltGraph {
         	<svg id="${this.graphSvgId}" class="svg"></svg>
 	  	</div>
 		<div id="${this.jsonContainerId}" class="jsonContainer">
-			<textarea id="${this.textAreaContainerId}" class="jsonTextContainer"></textarea>
+			<textarea id="${this.textAreaContainerId}" class="jsonTextContainer" readonly></textarea>
 		</div>
       <svg id="${this.connectSvgId}" class="connect-svg"></svg>`
 
-		this.selector.append(sHtml)
-		this.initResizeEvent()
-	}
-
-	initVertexPopupHtml() {
-		$(`#${HTML_VERTEX_INFO_ID}_${this.graphSvgId}`).remove();
-		const sHtml = `
-    <!-- Vertex Info Popup (S) -->
-    <div id="${HTML_VERTEX_INFO_ID}_${this.graphSvgId}" class="modal fade" role="dialog" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="web-dialog modal-content">
-          <div class="dialog-title">
-            <span class="title">DB JSON Info</span>
-          </div>
-
-          <div class="dialog-wrapper">
-            <form action="#" method="post">
-              <div class="dialog-search form-inline">
-                <table>
-                  <colgroup>
-                    <col width="80"/>
-                    <col width="*"/>
-                  </colgroup>
-                  <tbody>
-                    <tr>
-                      <th>Name</th>
-                      <td>
-                        <input type="text" class="form-control" id="vertexName_${this.graphSvgId}" name="vertexName" onfocus="this.select();">
-                      </td>
-                    </tr>
-                    <tr>
-                      <th>Description</th>
-                      <td class="full-width">
-                        <textarea class="form-control" id="vertexDesc_${this.graphSvgId}" name="vertexDesc" rows="4" onfocus="this.select();"></textarea>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </form>
-						<div class="dialog-button-top" id="${HTML_GROUP_BTN_DYNAMIC_DATASET}_${this.graphSvgId}">
-							<div class="row" style="float:left;">
-								<button id="vertexBtnDelete_${this.graphSvgId}" class="btn-etc">Delete</button>
-							</div>
-              <div class="row text-right">
-                <button id="vertexBtnAdd_${this.graphSvgId}" class="btn-etc">Add</button>
-              </div>
-            </div>
-            <form id="vertexForm_${this.graphSvgId}" action="#" method="post">
-              <div class="dialog-search form-inline">
-                <table class="fixed-headers vertex-properties" id="${HTML_VERTEX_PROPERTIES_ID}_${this.graphSvgId}" border="1"></table>
-              </div>
-            </form>
-            <div class="dialog-button-top">
-              <div class="row text-right">
-                <button id="vertexBtnConfirm_${this.graphSvgId}" class="btn-etc">Confirm</button>
-                <button id="vertexBtnCancel_${this.graphSvgId}" class="btn-etc">Cancel</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Vertex Info Popup (E) -->`
-
-		$($(`#${this.graphSvgId}`)[0].parentNode).append(sHtml)
-	}
-
-		/**
-   * Make popup edit vertex info
-   * @param vertex
-   */
-  makePopupEditVertex(vertex) {
-	this.currentVertex = vertex;
-	// Use in function updateVertexInfo()
-	const {name, description, data, groupType} = vertex;
-
-	// Get vertex group with group type
-
-	this.vertexGroup = this.vertexMgmt.vertexDefinition.vertexGroup[0];
-	this.currentVertex.groupType = groupType;
-
-	// Append content to popup
-	$(`#${HTML_VERTEX_INFO_ID}_${this.graphSvgId} #vertexName_${this.graphSvgId}`).val(name);
-	$(`#${HTML_VERTEX_INFO_ID}_${this.graphSvgId} #vertexDesc_${this.graphSvgId}`).val(description);
-
-	// Generate properties vertex
-	const columnTitle = Object.keys(this.vertexGroup.dataElementFormat);
-	const columnText = this.vertexGroup.dataElementText;
-	const cols = columnTitle.length;
-	const rows = data.length;
-	const dataType = this.vertexGroup.elementDataType;
-
-	// Store column width for table data
-	const arrColumnWidth = [];
-
-	const $table = $(`#${HTML_VERTEX_INFO_ID}_${this.graphSvgId} #${HTML_VERTEX_PROPERTIES_ID}_${this.graphSvgId}`).empty();
-	const $contentHeader = $('<thead>');
-	// Generate header table
-	const $headerRow = $('<tr>');
-	let $popWidth = 0;
-	for (let i = 0; i < cols; i++) {
-		const $colHdr = $('<th>').text(this.capitalizeFirstLetter(columnText[columnTitle[i]]));
-		$colHdr.attr('class', 'col_header');
-		$colHdr.appendTo($headerRow);
-
-		// Init col in col group
-		const prop = columnTitle[i];
-		const type = dataType[prop];
-		const value = this.vertexGroup.dataElementFormat[prop];
-		const width = this.findLongestContent({data, prop, type, value});
-		$popWidth += width;
-		arrColumnWidth.push(width);
-	}
-
-	// Prepend col group del check
-	arrColumnWidth.splice(0, 0, POPUP_CONFIG.WIDTH_COL_DEL_CHECK);
-
-	const $colHdr = this.initCellDelCheck({
-		'className': 'col_header',
-		'name': `${ATTR_DEL_CHECK_ALL}_${this.graphSvgId}`,
-		'checked': false,
-		'colType': '<th>',
-		'isCheckAll': true,
-	});
-
-		$colHdr.prependTo($headerRow);
-
-		$headerRow.appendTo($contentHeader);
-		$contentHeader.appendTo($table);
-
-		// Generate content table
-		const $contentBody = $('<tbody>');
-		for (let i = 0; i < rows; i++) {
-			const dataRow = data[i];
-			const $row = $('<tr>');
-			for (let j = 0; j < cols; j++) {
-				const prop = columnTitle[j];
-				const type = dataType[prop];
-				const val = dataRow[prop];
-				let opt = [];
-
-				const $col = $('<td>');
-				// Get option if type is array
-				if (type === VERTEX_FORMAT_TYPE.ARRAY) {
-					opt = this.vertexGroup.dataElementFormat[prop];
-				} else if (type === VERTEX_FORMAT_TYPE.BOOLEAN) {
-					$col.attr('class', 'checkbox_center');
-				}
-
-				const $control = this.generateControlByType({i, type, val, prop, opt, groupType});
-				$control.appendTo($col);
-				$col.appendTo($row);
-			}
-
-			// Append del check to row
-			const $col = this.initCellDelCheck({
-				'className': 'checkbox_center',
-				'name': `${ATTR_DEL_CHECK}_${this.graphSvgId}` ,
-				'checked': false,
-				'colType': '<td>'
-			});
-	
-			$col.prependTo($row);
-
-			$row.appendTo($contentBody);
-		}
-
-		$contentBody.appendTo($table);
-
-		// Set column with for table data
-		for(let i = 0; i < arrColumnWidth.length; i += 1) {
-			if (i === arrColumnWidth.length - 1) {
-				$(`.fixed-headers th:nth-child(${i+1}),td:nth-child(${i+1})`).css('width', '100%');
-			} else {
-				$(`.fixed-headers th:nth-child(${i+1}),td:nth-child(${i+1})`).css('min-width', arrColumnWidth[i]);
-			}
-		}
-
-		hideFileChooser();
-
-		const options = {
-			popupId: `${HTML_VERTEX_INFO_ID}_${this.graphSvgId}`,
-			position: 'center',
-			width: $popWidth + POPUP_CONFIG.PADDING_CHAR + 45
-		}
-
-		PopUtils.metSetShowPopup(options);
-		
-		$(`#${HTML_VERTEX_PROPERTIES_ID}_${this.graphSvgId}`).find('tbody').sortable();
-	}
-
-	bindEventForPopupVertex() {
-		const main = this;
-    
-		$(`#${HTML_VERTEX_INFO_ID}_${this.graphSvgId} #vertexBtnConfirm_${main.graphSvgId}`).click(() => {
-			this.confirmEditVertexInfo();
-		});
-
-		$(`#${HTML_VERTEX_INFO_ID}_${this.graphSvgId} #vertexBtnAdd_${main.graphSvgId}`).click(() => {
-			this.addDataElement();
-		});
-
-		$(`#${HTML_VERTEX_INFO_ID}_${this.graphSvgId} #vertexBtnDelete_${main.graphSvgId}`).click(() => {
-			this.removeDataElement();
-		});
-
-		$(`#${HTML_VERTEX_INFO_ID}_${this.graphSvgId} #vertexBtnCancel_${main.graphSvgId}`).click(() => {
-			this.closePopVertexInfo();
-			this.currentVertex = null;
-		});
-
-		// Prevent refresh page after pressing enter on form control (Edit popup)
-		$('form').submit(function() { return false; });
-		
-    // this.initDialogDragEvent();
-    initDialogDragEvent(`${HTML_VERTEX_INFO_ID}_${this.graphSvgId}`);
-	}
-
-	addDataElement() {
-		const groupType = this.currentVertex.groupType;
-		const columnTitle = Object.keys(this.vertexGroup.dataElementFormat);
-		const cols = columnTitle.length;
-		const dataType = this.vertexGroup.elementDataType;
-		const $appendTo = $(`#${HTML_VERTEX_PROPERTIES_ID}_${this.graphSvgId} > tbody`);
-
-		const $row = $('<tr>');
-		for (let j = 0; j < cols; j++) {
-			const prop = columnTitle[j];
-			const type = dataType[prop];
-			// let val = dataRow[prop];
-			let opt = []
-
-			const $col = $('<td>');
-			// Get option if type is array
-			if (type === VERTEX_FORMAT_TYPE.ARRAY) {
-				opt = this.vertexGroup.dataElementFormat[prop];
-			} else if (type === VERTEX_FORMAT_TYPE.BOOLEAN) {
-				$col.attr('class', 'checkbox_center');
-			}
-
-			const $control = this.generateControlByType({'i': j, type, prop, opt, groupType});
-			$control.appendTo($col);
-			$col.appendTo($row);
-		}
-
-		// Append del check to row
-		const $col = this.initCellDelCheck({
-			'className': 'checkbox_center',
-			'name': `${ATTR_DEL_CHECK}_${this.graphSvgId}`,
-			'checked': false,
-			'colType': '<td>'
-    });
-    
-		$col.prependTo($row)
-
-		$row.appendTo($appendTo);
-
-		// Set column with for table data
-		let columnHeaderCount = 0;
-		$(`.fixed-headers thead tr th`).each(function () {
-			columnHeaderCount += 1;
-
-			if ($(this).css('display') !== 'none') {
-				$(`.fixed-headers td:nth-child(${columnHeaderCount})`).css('min-width', parseInt($(this).css('min-width').replace('px','')));
-			}
-		});
-
-		$(`.fixed-headers td:nth-child(${columnHeaderCount})`).css('width', '100%');
-	}
-
-	removeDataElement() {
-		$(`#${HTML_VERTEX_PROPERTIES_ID}_${this.graphSvgId} > tbody`).find(`input[name=${ATTR_DEL_CHECK}_${this.graphSvgId}]`).each(function () {
-			if ($(this).is(':checked')) {
-				$(this).parents('tr').remove();
-			}
-		})
-
-		// Uncheck all
-		$(`#${ATTR_DEL_CHECK_ALL}_${this.graphSvgId}`).prop('checked', false);
-	}
-
-	/**
-   * Close popup edit vertex info
-   */
-	closePopVertexInfo() {
-		const options = {popupId: `${HTML_VERTEX_INFO_ID}_${this.graphSvgId}`};
-		PopUtils.metClosePopup(options);
-	}
-
-	/**
-   * Get data vertex change
-   */
-	confirmEditVertexInfo() {
-		if ($(`#${HTML_VERTEX_INFO_ID}_${this.graphSvgId} #vertexName_${this.graphSvgId}`).val() === '') {
-			comShowMessage('Please enter Name.');
-			$(`#vertexName_${this.graphSvgId}`).focus();
-			return;
-		}
-		
-		if (!this.validateDataElementTable()) return;
-
-		let oldObject = null;
-		if (this.currentVertex.id) {
-			oldObject = this.currentVertex.getObjectInfo();
-		}
-
-		// Get data on form
-		this.currentVertex.name = this.currentVertex.vertexType = $(`#${HTML_VERTEX_INFO_ID}_${this.graphSvgId} #vertexName_${this.graphSvgId}`).val();
-		this.currentVertex.description = $(`#${HTML_VERTEX_INFO_ID}_${this.graphSvgId} #vertexDesc_${this.graphSvgId}`).val();
-		const groupType = this.currentVertex.groupType;
-		const dataType = this.vertexGroup.elementDataType;
-
-		const elements = [];
-		// Get data element
-		$(`#${HTML_VERTEX_INFO_ID}_${this.graphSvgId} #${HTML_VERTEX_PROPERTIES_ID}_${this.graphSvgId}`).find('tr').each(function () {
-			const row = {};
-			$(this).find('td input:text, td input:checkbox, td select').each(function () {
-				const prop = $(this).attr('name');
-				const type = dataType[prop];
-				if (prop != `${ATTR_DEL_CHECK}_${this.graphSvgId}`);
-					row[prop] = type === VERTEX_FORMAT_TYPE.BOOLEAN ? ($(this).is(':checked') ? true : false) : this.value;
-			})
-			elements.push(row);
-		})
-
-		// Remove first row (header table)
-		elements.shift();
-
-		this.currentVertex.data = elements;
-		this.currentVertex.groupType = groupType;
-
-		// update
-		if (this.currentVertex.id) {
-			this.updateVertexInfo(this.currentVertex);
-
-			if (this.history) {
-				const state = new State();
-				const he = new HistoryElement();
-				he.actionType = ACTION_TYPE.UPDATE_INFO;
-				he.oldObject = oldObject;
-				he.dataObject = this.currentVertex.getObjectInfo();
-				he.realObject = this.currentVertex;
-				state.add(he);
-				this.history.add(state);
-			}
-
-		} else {
-			//Create New
-			this.currentVertex.isCreateNewSegment = true;
-			this.currentVertex.isShowReduced = this.isShowReduced;
-			this.createVertex(this.currentVertex);
-		}
-
-		this.closePopVertexInfo();
-	}
-
-	validateDataElementTable() {
-		const $tr = $(`#${HTML_VERTEX_PROPERTIES_ID}_${this.svgId}`).find('tr');
-
-		const rowCount = $tr.length;
-
-		if (rowCount <= 1) return true;
-
-		for(let i = 1; i < rowCount; i++) {
-			const $name = $($tr[i]).find('td input:text[name=\'name\']');
-			if ($name.val() == '') {
-				comShowMessage('Enter name.');
-				$name.focus();
-				return false;
-			}
-		}
-		
-		return true;
-	}
-
-	initCellDelCheck(options) {
-		const {className, name, checked, colType, isCheckAll} = options;
-    
-		const $col = $(colType);
-		$col.attr('class', className);
-		const $chk = $('<input>');
-		$chk.attr('type', 'checkbox');
-		if (isCheckAll) {
-			$chk.attr('id', name);
-		}
-		$chk.prop('checked', checked);
-
-		const main = this;
-		$chk.attr('name', name)
-			.on('click', function () {
-				if (isCheckAll)
-					$(this).closest('table').find(`tbody :checkbox[name=${ATTR_DEL_CHECK}_${main.svgId}]`)
-						.prop('checked', this.checked);
-				else {
-					$(`#${ATTR_DEL_CHECK_ALL}_${main.svgId}`).prop('checked',
-						($(this).closest('table').find(`tbody :checkbox[name=${ATTR_DEL_CHECK}_${main.svgId}]:checked`).length ==
-              $(this).closest('table').find(`tbody :checkbox[name=${ATTR_DEL_CHECK}_${main.svgId}]`).length));
-				}
-			})
-		$chk.appendTo($col);
-
-		return $col;
-	}
-
-	/**
-   * Upper case first letter
-   */
-  	capitalizeFirstLetter(string) {
-		return string.charAt(0).toUpperCase() + string.slice(1);
-	}
-
-	findLongestContent(configs) {
-		const {data, prop, type, value} = configs;
-		const firstRow = data[0];
-		let arr = [];
-
-		// If type is boolean or first undefined or firstRow is empty
-		if ((type === VERTEX_FORMAT_TYPE.BOOLEAN) || !firstRow)
-			return this.getLongestSpecialCase(prop, value);
-		// prop.toString().length * POPUP_CONFIG.WIDTH_CHAR + POPUP_CONFIG.PADDING_CHAR;
-
-		//  If object firstRow hasn't it own the specified property
-		if (!firstRow.hasOwnProperty(prop)) {
-			return this.getLongestSpecialCase(prop, value);
-		}
-
-		// From an array of objects, extract value of a property as array
-		if (type === VERTEX_FORMAT_TYPE.ARRAY) {
-			arr = value;
-		} else {
-			arr = data.map(e => e[prop]);
-		}
-		const longest = this.getLongestContentFromArry(arr);
-		if (longest.toString().length < prop.toString().length)
-			return prop.toString().length * POPUP_CONFIG.WIDTH_CHAR + POPUP_CONFIG.PADDING_CHAR;
-
-		return longest.toString().length * (type === VERTEX_FORMAT_TYPE.ARRAY ? POPUP_CONFIG.WIDTH_CHAR_UPPER : POPUP_CONFIG.WIDTH_CHAR) + POPUP_CONFIG.PADDING_CHAR;
-	}
-
-	getLongestSpecialCase(prop, value) {
-		const lengthProp = prop.toString().length;
-		let lengthDef = value.toString().length;
-		let type = typeof(value);
-		// Has type is array
-		if (type === 'object' && Array.isArray(value)) {
-			type = VERTEX_FORMAT_TYPE.ARRAY;
-			lengthDef = this.getLongestContentFromArry(value).toString().length;
-		}
-
-		return (lengthProp > lengthDef ? lengthProp * POPUP_CONFIG.WIDTH_CHAR :
-			lengthDef * (type === VERTEX_FORMAT_TYPE.ARRAY ? POPUP_CONFIG.WIDTH_CHAR_UPPER : POPUP_CONFIG.WIDTH_CHAR ))
-	+ POPUP_CONFIG.PADDING_CHAR;
-	}
-
-	getLongestContentFromArry(arr) {
-		return arr.reduce((a, b) => {
-			const firstTmp = a + '';
-			const secondTmp = b + '';
-			return firstTmp.length > secondTmp.length ? firstTmp : secondTmp;
-		})
-	}
-
-		/**
-   * Generate control with options
-   * @param options
-   * @returns {*}
-   */
-  	generateControlByType(options) {
-		let $control = null;
-		const { type, val, prop, opt } = options;
-		const defaultVal = this.vertexGroup.dataElementFormat[prop];
-		
-		switch (type) {
-		case VERTEX_FORMAT_TYPE.BOOLEAN:
-			$control = $('<input>');
-			$control.attr('type', 'checkbox');
-			$control.attr('name', `${prop}`);
-			$control.prop('checked', typeof(val) == 'boolean' ? val : defaultVal);
-			$control.attr('value', val);
-			break
-		case VERTEX_FORMAT_TYPE.ARRAY:
-			const firstOpt = opt[0];
-			$control = $('<select>');
-			$control.attr('name', `${prop}`);
-			$control.attr('class', 'form-control');
-			$.each(opt, (key, value) => {
-				$control
-					.append($('<option></option>')
-						.attr('value', value || firstOpt)
-						.prop('selected', value === (val || firstOpt))
-						.text(value));
-			})
-			break
-		case VERTEX_FORMAT_TYPE.NUMBER:
-			$control = $('<input>');
-			$control.attr('type', 'text');
-			$control.attr('name', `${prop}`);
-			$control.attr('value', !isNaN(val) ? val : defaultVal);
-			$control.attr('class', 'form-control');
-			$control
-				.on('keydown', function (e) {
-					allowInputNumberOnly(e);
-				})
-				.on('focusout', function (e) {
-					if (this.value && !checkIsMatchRegexNumber(this.value)) {
-						comShowMessage('Input invalid');
-						this.value = '';
-					} else {
-						if (isNaN(this.value)) {
-							comShowMessage('Input invalid');
-							this.value = '';
-						}
-					}
-				});
-			break
-		default:
-			$control = $('<input>');
-			$control.attr('type', 'text');
-			$control.attr('autocomplete', 'off');
-			$control.attr('name', `${prop}`);
-			$control.attr('value', val != undefined ? val : defaultVal);
-			$control.attr('class', 'form-control');
-		}
-
-		return $control;
+		this.selector.append(sHtml)		
 	}
 
 	initResizeEvent() {
@@ -954,8 +374,6 @@ class CltGraph {
 		this.edgeMgmt.clearAll();
 
 		//Reload Vertex Define and draw graph
-		const {vertexTypes} = graphData;
-		this.vertexMgmt.processDataVertexTypeDefine(vertexTypes);
 		this.drawObjects(graphData);
 		this.isShowReduced = false;
 		this.initMenuContext();
@@ -969,9 +387,6 @@ class CltGraph {
 		this.objectUtils.onContainerSvgScroll(this.graphSvgId, this.edgeMgmt, [this.dataContainer]);
 
 		setMinBoundaryGraph(this.dataContainer,this.graphSvgId, this.viewMode.value);
-
-		setAddressTabName(ID_TAB_MESSAGE_SPEC, fileName);
-		this.showFileNameOnApplicationTitleBar();
 
 		hideFileChooser();
 	}
@@ -1012,14 +427,9 @@ class CltGraph {
 		})
 	}
 
-	LoadVertexDefinition(vertexDefinitionData, fileName) {
-		if (this.vertexMgmt.LoadVertexDefinition(vertexDefinitionData)) {
+	LoadVertexDefinition() {
+    if (this.vertexMgmt.LoadVertexDefinition(this.getDefaultVertexDefinition())) {
 			this.initMenuContext();
-
-			setAddressTabName(ID_TAB_SEGMENT_SET, fileName);
-			this.showFileNameOnApplicationTitleBar();
-
-			hideFileChooser();
 		}
 	}
 
@@ -1045,48 +455,6 @@ class CltGraph {
 			return {
 				type: 'error',
 				message: 'Message Spec is corrupted. You should check it!'
-			}
-		}
-
-		// Validate embedded vertex type with vertices
-		const dataTypes = data.vertexTypes['VERTEX'];
-		const vertices = removeDuplicates(data.vertex, 'vertexType');
-		const types = this.getListVertexType(dataTypes);
-		for (const vertex of vertices) {
-			const type = vertex.vertexType;
-			// If vertex type not exit in embedded vertex type
-			if (types.indexOf(type) < 0) {
-				console.log('Vertex type not exits in embedded vertex type');
-				return {
-					type: 'warning',
-					message: 'Vertex type not exits in embedded vertex type'
-				}
-			}
-
-			// Validate data key between embedded vertex and vetex in graph.
-			const dataSource = vertex.data;
-			const dataTarget = _.find(dataTypes, {'vertexType': type});
-			const keySource = Object.keys(dataSource[0] || {});
-			const keyTarget = Object.keys(dataTarget.data[0] || {});
-
-			// Check length key
-			if (checkLengthMisMatch(keySource, keyTarget)) {
-				console.log('Data\'s length is different');
-				return {
-					type: 'warning',
-					message: 'Data\'s length is different'
-				}
-			}
-
-			// Check mismatch key
-			const flag = checkKeyMisMatch(keySource, keyTarget);
-
-			if (flag) {
-				console.log('Key vertex at source not exit in target');
-				return {
-					type: 'warning',
-					message: 'Key vertex at source not exit in target'
-				}
 			}
 		}
 
@@ -1294,6 +662,62 @@ class CltGraph {
 			}
 		})
 	}
+
+	generateDBJSONContent() {
+		if (this.dataContainer.vertex.length == 0)
+      return '';
+      
+    const vertex = _.sortBy(this.dataContainer.vertex, ['id']);
+
+		let arrTable = [];
+		let edge = this.dataContainer.edge;
+		for (let i = 0; i < vertex.length; i++) {
+			let table = '';
+			let arrCol = [];
+			let vertice = vertex[i];
+
+			const {name, data} = vertice;
+			for (let row of data) {
+				let str = `\t${row['dbcol']}:${row['jsonfield']},`
+				arrCol.push(str);
+			}
+			table = `${name}: {\n${arrCol.join('\n')}\n},`
+			arrTable.push(table);
+		}
+
+		let arrLinks = [];
+
+		for (let i = 0; i < vertex.length; i++) {
+			let vertice = vertex[i];
+			const {name, data} = vertice;
+			const links = _.filter(edge, (item) => {
+				return vertice.id == item.target.vertexId;
+			});
+			if (links.length > 0) {
+				var result=_.groupBy(links, (item) => {
+					return item.target.prop;
+				})
+				_.map(result, (arr, key) => {
+					const targetKey = parseInt(key.split(CONNECT_KEY)[1]);
+					const leftRelData = data[targetKey];
+					let arrTableLinks = [];
+					for (let edgeGroup of arr) {
+						let {source} = edgeGroup;
+						let sourceVertex = _.find(this.dataContainer.vertex, {'id': source.vertexId});
+						let sourceData = sourceVertex['data'];
+						let sourceTableName = sourceVertex['name'];
+						const sourceKey = parseInt(source.prop.split(CONNECT_KEY)[1]);
+						const rightRelData = sourceData[sourceKey];
+						arrTableLinks.push(`${sourceTableName}.${rightRelData['dbcol']}`);
+					}
+					arrLinks.push(`\t${name}.${leftRelData['dbcol']}:[${arrTableLinks.join(', ')}]`);
+				});
+			}
+		}
+
+		let strLinks = arrLinks.length > 0 ? `\nlinks: [\n${arrLinks.join(", \n")}\n]` :  `\nlinks: []`
+		return `${arrTable.join("\n")}${strLinks}`;
+	}
 	
 	/**
 	 * 
@@ -1355,7 +779,47 @@ class CltGraph {
 		})
 
 		setMinBoundaryGraph(this.dataContainer, this.graphSvgId, this.viewMode.value);
-	}
+  }
+  
+  getDefaultVertexDefinition() {
+    return {
+      "VERTEX_GROUP": [
+        {
+          "groupType":"DBJSON",
+          "option":[ 
+          
+          ],
+          "dataElementFormat":{ 
+            "dbcol":"",
+            "dbcoldescription":"",
+            "jsonfield":"",
+            "jsonfielddescription":""
+          },
+          "dataElementText":{ 
+            "dbcol":"DB Col",
+            "dbcoldescription":"DB Col Description",
+            "jsonfield":"JSON field",
+            "jsonfielddescription":"JSON field description"
+            
+          },
+          "vertexPresentation":{ 
+            "key":"dbcol",
+            "value":"jsonfield",
+            "keyTooltip":"dbcoldescription",
+            "valueTooltip":"jsonfielddescription"
+          }
+        }
+      ]
+		};
+  }
+
+  autoGenerate() {
+    const str = this.generateDBJSONContent();
+    $(`#${this.textAreaContainerId}`).text(str);
+    setTimeout(() => {
+      this.autoGenerate();
+    }, 2000);
+  }
 }
   
 export default CltGraph;

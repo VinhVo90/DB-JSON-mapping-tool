@@ -142,6 +142,7 @@ class Edge {
       .attr('focusable', true)
       .attr('stroke', 'white')
       .attr('stroke-miterlimit', 10)
+      .attr('fill', 'none')
       .attr('pointer-events', 'stroke')
       .attr('visibility', 'hidden')
       .attr('stroke-width', 9)
@@ -153,6 +154,7 @@ class Edge {
       .attr('focusable', true)
       .attr('stroke', 'black')
       .attr('stroke-miterlimit', 10)
+      .attr('fill', 'none')
       .attr('focusable', true)
       .attr('marker-end', this.useMarker === 'Y' ? `url(#arrow${this.id})` : '')
       .attr('stroke-dasharray', this.lineType === LINE_TYPE.SOLID ? '0 0' : '3 3'); // Make arrow at end path
