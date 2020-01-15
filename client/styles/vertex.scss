@@ -1,3 +1,9 @@
+$key-width: 50%;
+$data-margin-left: 5px;
+$connector-width: 12px;
+$percent-100: 100%;
+
+
 .vertex_content {
   border-top: 1px solid black;
   border-left: 1px solid black;
@@ -26,7 +32,7 @@
     line-height: 25px;
 
     .key{
-      width: 157px;
+      width: $key-width;
       text-align: left;
       margin-left: 1px;
       font-weight: 300;
@@ -34,14 +40,14 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 157px;
+      max-width: $key-width;
       
     }
 
     .data{
       font-weight: 300;
       font-size: 9px;
-      width: calc(100% - 150px);
+      width: calc(#{$percent-100} - #{$key-width} - #{$data-margin-left});
       margin-left: 5px;
       margin-right: 1px;
       text-align: right;
@@ -49,19 +55,19 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: calc(100% - 150px);
+      max-width: calc(#{$percent-100} - #{$key-width} - #{$data-margin-left});
     }
 
     .has_left_connect{
-      margin-left: 13px;
-      width: 145px;
-      max-width: 145px;
+      margin-left: $connector-width + 1px;
+      width: calc(#{$key-width} - #{$connector-width} + 1px);
+      max-width: calc(#{$key-width} - #{$connector-width} + 1px);
     }
     
     .has_right_connect{
-      margin-right: 13px;
-      width: calc(100% - 162px);
-      max-width: calc(100% - 162px);
+      margin-right: $connector-width + 1px;
+      width: calc(#{$percent-100} - #{$connector-width} - #{$data-margin-left} - #{$key-width});
+      max-width: calc(#{$percent-100} - #{$connector-width} - #{$data-margin-left} - #{$key-width});
     }
   }
 }
