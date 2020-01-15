@@ -665,47 +665,47 @@ class CltGraph {
 
 	generateDBJSONContent() {
 		if (this.dataContainer.vertex.length == 0)
-      return '';
+      		return '';
       
-    const vertex = _.sortBy(this.dataContainer.vertex, ['id']);
+    	const vertex = _.sortBy(this.dataContainer.vertex, ['id']);
 
-		let arrTable = [];
-		let edge = this.dataContainer.edge;
+		const arrTable = [];
+		const edge = this.dataContainer.edge;
 		for (let i = 0; i < vertex.length; i++) {
 			let table = '';
-			let arrCol = [];
-			let vertice = vertex[i];
+			const arrCol = [];
+			const vertice = vertex[i];
 
 			const {name, data} = vertice;
-			for (let row of data) {
-				let str = `\t${row['dbcol']}:${row['jsonfield']},`
+			for (const row of data) {
+				const str = `\t${row['dbcol']}:${row['jsonfield']},`;
 				arrCol.push(str);
 			}
-			table = `${name}: {\n${arrCol.join('\n')}\n},`
+			table = `${name}: {\n${arrCol.join('\n')}\n},`;
 			arrTable.push(table);
 		}
 
 		let arrLinks = [];
 
 		for (let i = 0; i < vertex.length; i++) {
-			let vertice = vertex[i];
+			const vertice = vertex[i];
 			const {name, data} = vertice;
 			const links = _.filter(edge, (item) => {
 				return vertice.id == item.target.vertexId;
 			});
 			if (links.length > 0) {
-				var result=_.groupBy(links, (item) => {
+				const result=_.groupBy(links, (item) => {
 					return item.target.prop;
 				})
 				_.map(result, (arr, key) => {
 					const targetKey = parseInt(key.split(CONNECT_KEY)[1]);
 					const leftRelData = data[targetKey];
-					let arrTableLinks = [];
-					for (let edgeGroup of arr) {
-						let {source} = edgeGroup;
-						let sourceVertex = _.find(this.dataContainer.vertex, {'id': source.vertexId});
-						let sourceData = sourceVertex['data'];
-						let sourceTableName = sourceVertex['name'];
+					const arrTableLinks = [];
+					for (const edgeGroup of arr) {
+						const {source} = edgeGroup;
+						const sourceVertex = _.find(this.dataContainer.vertex, {'id': source.vertexId});
+						const sourceData = sourceVertex['data'];
+						const sourceTableName = sourceVertex['name'];
 						const sourceKey = parseInt(source.prop.split(CONNECT_KEY)[1]);
 						const rightRelData = sourceData[sourceKey];
 						arrTableLinks.push(`${sourceTableName}.${rightRelData['dbcol']}`);
@@ -715,7 +715,7 @@ class CltGraph {
 			}
 		}
 
-		let strLinks = arrLinks.length > 0 ? `\nlinks: [\n${arrLinks.join(", \n")}\n]` :  `\nlinks: []`
+		const strLinks = arrLinks.length > 0 ? `\nlinks: [\n${arrLinks.join(", \n")}\n]` :  `\nlinks: []`;
 		return `${arrTable.join("\n")}${strLinks}`;
 	}
 	
