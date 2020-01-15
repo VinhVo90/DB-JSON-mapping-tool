@@ -186,36 +186,6 @@ class Vertex {
         </div>
       `);
 
-    // Rect connect title INPUT
-    if (this.connectSide === CONNECT_SIDE.BOTH || this.connectSide === CONNECT_SIDE.LEFT) {
-      group.append('rect')
-        .attr('class', `drag_connect connect_header drag_connect_${this.svgId}`)
-        .attr('type', CONNECT_TYPE.INPUT)
-        .attr('prop', `${this.id}${CONNECT_KEY}title`)
-        .attr('pointer-events', 'all')
-        .attr('width', 12)
-        .attr('height', VERTEX_ATTR_SIZE.HEADER_HEIGHT - 1)
-        .attr('x', 1)
-        .attr('y', 1)
-        .attr('fill', this.colorHash.hex(this.name))
-        .call(callbackDragConnection);
-    }
-
-    // Rect connect title OUTPUT
-    if (this.connectSide === CONNECT_SIDE.BOTH || this.connectSide === CONNECT_SIDE.RIGHT) {
-      group.append('rect')
-        .attr('class', `drag_connect connect_header drag_connect_${this.svgId}`)
-        .attr('type', CONNECT_TYPE.OUTPUT)
-        .attr('prop', `${this.id}${CONNECT_KEY}title`)
-        .attr('pointer-events', 'all')
-        .attr('width', 12)
-        .attr('height', VERTEX_ATTR_SIZE.HEADER_HEIGHT - 1)
-        .attr('x', VERTEX_ATTR_SIZE.GROUP_WIDTH - (VERTEX_ATTR_SIZE.PROP_HEIGHT / 2))
-        .attr('y', 1)
-        .attr('fill', this.colorHash.hex(this.name))
-        .call(callbackDragConnection);
-    }
-
     for (let i = 0; i < countData; i += 1) {
       // Input
       if (this.connectSide === CONNECT_SIDE.BOTH || this.connectSide === CONNECT_SIDE.LEFT) {
@@ -295,6 +265,8 @@ class Vertex {
    * Remove vertex
    */
   remove(isMenu = true, state) {
+    if (this.history && !state) state = new State();
+
     // Remove all edge relate to vertex
     this.vertexMgmt.edgeMgmt.removeAllEdgeConnectToVertex(this, state);
 
@@ -312,7 +284,6 @@ class Vertex {
     if (this.history) {
       if (isMenu) {
         // remove vertex by menu context
-        state = new State();
         const he = new HistoryElement();
         he.actionType = ACTION_TYPE.DELETE;
         he.dataObject = this.getObjectInfo();
