@@ -675,7 +675,7 @@ class CltGraph {
 	}
 
 	generateDBJSONContent() {
-		let vertex = this.dataContainer.vertex;
+		let vertex = _.sortBy(this.dataContainer.vertex, ['id']);
 		if (vertex.length == 0)
 			return '';
 
