@@ -8,6 +8,7 @@ import MainMenu from '../common-objects/menu-context/main-menu';
 import History from '../../common/new-type-define/history';
 import HistoryElement from '../../common/new-type-define/historyElement';
 import State from '../../common/new-type-define/state';
+import FindMenu from '../common-objects/menu-context/find-menu';
 
 import {
 	comShowMessage,
@@ -187,6 +188,11 @@ class CltGraph {
 			vertexDefinition: this.vertexMgmt.vertexDefinition,
 			viewMode: this.viewMode,
 			history: this.history
+    });
+    
+    new FindMenu({
+			selector: `#${this.graphContainerId}`,
+			dataContainer: this.dataContainer,
 		});
 	}
 
