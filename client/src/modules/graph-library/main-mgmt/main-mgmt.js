@@ -44,6 +44,10 @@ class MainMgmt {
 		this.cltGraph.save(fileName);
 	}
 
+	getData() {
+		this.cltGraph.getData();
+	}
+
 	/**
    * Set mode graph is enable or disable edit
    * @param modeGraph

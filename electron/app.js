@@ -1,6 +1,7 @@
 //handle setupevents as quickly as possible
 const setupEvents = require('../installers/setupEvents')
 const MenuBuilder = require('./menu')
+
 //import MenuBuilder from "./menu";
 if (setupEvents.handleSquirrelEvent()) {
   // squirrel event handled and app will exit in 1000ms, so don't do anything else
@@ -58,7 +59,12 @@ app.on('ready', async () => {
     minWidth: 1366,
     minHeight: 800,
     show: false,
-    icon: path.join(__dirname, '/../client/assets/icons/png/64x64.png')
+    icon: path.join(__dirname, '/../client/assets/icons/png/64x64.png'),
+    webPreferences : {
+      nodeIntegration: true,
+      nodeIntegrationInWorker: true,
+      enableRemoteModule : true
+    }
   });
 
 

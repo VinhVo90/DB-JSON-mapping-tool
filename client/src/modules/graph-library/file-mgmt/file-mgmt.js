@@ -8,6 +8,7 @@ const GROUP_OPTION_MODE_GRAPH = 'input:radio[name=graphMode]';
 const ID_OUTPUT_FILE_NAME = 'outputFileName';
 const ID_BUTTON_DOWNLOAD_FILE = 'btnDownloadFile';
 const ID_BUTTON_LOAD = 'btnLoad';
+const ID_BUTTON_GET_DATA = 'btnGetData';
 
 class FileMgmt {
 	constructor(props) {
@@ -48,6 +49,10 @@ class FileMgmt {
 		$(`#${ID_BUTTON_LOAD}`).click(()=>{
 			this.readJsonFile();
 		});
+
+		$(`#${ID_BUTTON_GET_DATA}`).click(()=>{
+			this.getData();
+		});
 	}
 
 	/**
@@ -67,6 +72,10 @@ class FileMgmt {
 		const options = $(`#${ID_OPTION_FILE_TYPE_INPUT}`).val();
 
 		this.parent.separateDataToManagement(data, options, file.name);
+	}
+
+	getData() {
+		this.parent.getData();
 	}
 
 	clearInputFile() {

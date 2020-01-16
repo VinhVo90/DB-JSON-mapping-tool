@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import _ from 'lodash';
+import db from '../../../../models/index'
 import ObjectUtils from '../../common/utilities/object.util';
 import VertexMgmt from '../common-objects/objects/vertex-mgmt';
 import BoundaryMgmt from '../common-objects/objects/boundary-mgmt';
@@ -60,10 +61,10 @@ class CltGraph {
 		this.initialize();
 	}
 
-	initialize() {
-
+	async initialize() {
 		this.objectUtils = new ObjectUtils();
 
+		this.initDatabase();
 		this.initSvgHtml();
 
 		this.dataContainer = {
@@ -115,6 +116,12 @@ class CltGraph {
 		this.initShortcutKeyEvent();
 		this.initResizeEvent();
     this.autoGenerate();
+	}
+
+	initDatabase() {
+		db.sequelize.sync().then(() => {
+			console.log("DB Connected");
+		});
 	}
 
 	initSvgHtml() {
@@ -821,6 +828,24 @@ class CltGraph {
     setTimeout(() => {
       this.autoGenerate();
     }, 2000);
+  }
+
+  async getData() {
+	let query = `
+	select * from "USER_ACCOUNTS"
+	`;
+   
+	await db.sequelize.query(query, {
+	  type: db.Sequelize.QueryTypes.SELECT
+	}).then(result => {
+	  if (result.length > 0) {
+		const user = result[0];
+		let str = _.map(result, (user) => {
+			return `User Id : ${user['USER_ID']}, System Id : ${user['SYSTEM_ID']}`;
+		}).join("\n")
+		comShowMessage(str);
+	  }
+	});
   }
 }
   

@@ -11,12 +11,17 @@
     "watch": "webpack --watch",
     "package-win": "electron-packager . algeta-mapping-tool --overwrite --asar --platform=win32 --arch=ia32 --icon=client/assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Algeta Mapping Tool\"",
     "create-installer-win": "node installers/windows/createinstaller.js",
-    "eslint": "eslint ./client/src"
+    "eslint": "eslint ./client/src",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
   },
   "dependencies": {
     "color-hash": "^1.0.3",
     "d3": "^5.9.1",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.4",
+    "oracledb": "^4.1.0",
+    "sequelize-oracle": "^3.3.2-0.0",
+    "webpack-node-externals": "^1.7.2"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -29,7 +34,7 @@
     "babel-register": "^6.26.0",
     "cross-env": "^5.1.1",
     "css-loader": "^2.1.0",
-    "electron": "^4.0.4",
+    "electron": "^7.1.9",
     "electron-devtools-installer": "^2.2.1",
     "electron-packager": "^13.0.1",
     "electron-winstaller": "^2.7.0",

@@ -1,5 +1,6 @@
 const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const nodeExternals = require('webpack-node-externals');
 
 const DIR_NAME = __dirname;
 const isDebug = !process.env.PRO ? true : false;
@@ -10,6 +11,8 @@ const library = [
 ];
 
 module.exports = {
+  target: "electron-renderer",
+  externals: [nodeExternals()],
   devtool: "eval-source-map",
   entry: {
     library: library
