@@ -64,9 +64,7 @@ class FileMgmt {
 		if (!data)
 			return;
 
-		const options = $(`#${ID_OPTION_FILE_TYPE_INPUT}`).val();
-
-		this.parent.separateDataToManagement(data, options, file.name);
+    this.parent.cltGraph.loadGraphData(data, file.name);
 	}
 
 	clearInputFile() {
@@ -78,4 +76,4 @@ class FileMgmt {
 	}
 }
 
-export default FileMgmt
+export default FileMgmt;

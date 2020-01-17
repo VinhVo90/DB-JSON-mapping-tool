@@ -31,15 +31,6 @@ class MainMgmt {
 		})
 	}
 
-	/**
-	 * Validation data input match structure of graph data
-	 * @param data
-	 * @param option
-	 */
-	separateDataToManagement(data, option, fileName) {
-		this.cltGraph.loadGraphData(data, fileName);
-	}
-
 	save(fileName) {
 		this.cltGraph.save(fileName);
 	}

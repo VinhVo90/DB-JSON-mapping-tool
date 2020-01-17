@@ -1,7 +1,7 @@
 {
-  "name": "algeta-mapping-tool",
-  "productName": "Algeta Mapping Tool",
-  "description": "Multi functional tool for message mapping",
+  "name": "db-json-mapping-tool",
+  "productName": "DB-JSON Mapping Tool",
+  "description": "Multi functional tool for DB-JSON mapping",
   "version": "0.8.0",
   "main": "electron/app.js",
   "author": "CyberLogitec",
@@ -9,7 +9,7 @@
   "scripts": {
     "start-app-dev": "cross-env HOT=1 NODE_ENV=development electron ./electron/app",
     "watch": "webpack --watch",
-    "package-win": "electron-packager . algeta-mapping-tool --overwrite --asar --platform=win32 --arch=ia32 --icon=client/assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Algeta Mapping Tool\"",
+    "package-win": "electron-packager . db-json-mapping-tool --overwrite --asar --platform=win32 --arch=ia32 --icon=client/assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"DB-JSON Mapping Tool\"",
     "create-installer-win": "node installers/windows/createinstaller.js",
     "eslint": "eslint ./client/src"
   },
